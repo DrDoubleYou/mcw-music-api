@@ -4,6 +4,7 @@ import { createInterface } from "node:readline/promises";
 import { stdin, stdout } from "node:process";
 import { join } from "node:path";
 
+const userAgent = "mcw-music-api-example/1.0";
 const key = process.env.MCW_API_KEY;
 if (!key) {
   console.error("Set MCW_API_KEY first: https://api.matthewcwright.com/developers/");
@@ -25,7 +26,7 @@ async function main() {
   const url = new URL(base.toString().replace(/\/$/, "") + "/tracks");
   url.search = new URLSearchParams({ collection: "relaxation", limit: "5" }).toString();
   const response = await fetch(url, {
-    headers: { Authorization: `Bearer ${key}` },
+    headers: { Authorization: `Bearer ${key}`, "User-Agent": userAgent },
     redirect: "error", // Never send authenticated requests to a redirect target.
     signal: AbortSignal.timeout(30_000),
   });
@@ -54,6 +55,7 @@ async function main() {
   if (!/^[A-Za-z0-9_-]+$/.test(track.id)) throw new Error("Track ID is not a safe filename.");
   const audio = await fetch(safeUrl(track.download_url), {
     // This independent request deliberately has no Authorization header.
+    headers: { "User-Agent": userAgent },
     signal: AbortSignal.timeout(60_000),
   });
   if (!audio.ok) throw new Error(`Download returned HTTP ${audio.status}.`);

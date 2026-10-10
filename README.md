@@ -35,6 +35,9 @@ bash examples/download_music.sh    # cURL + jq; Bash / zsh terminal
 
 [Quick start, environment setup, and search options →](docs/quickstart.md)
 
+
+The examples identify requests with `User-Agent: mcw-music-api-example/1.0` on both the API and public audio downloads. Keep that header when adapting them: browser-oriented edge filters can reject Python’s default User-Agent. The API key belongs only on API requests.
+
 ## Connect your AI through MCP
 
 Add this remote MCP server in an assistant that supports **Streamable HTTP and OAuth**:
@@ -59,6 +62,7 @@ Base URL: `https://api.matthewcwright.com/api/v1`
 
 ```sh
 curl --fail-with-body --get 'https://api.matthewcwright.com/api/v1/tracks' \
+  --user-agent 'mcw-music-api-example/1.0' \
   -H "Authorization: Bearer ${MCW_API_KEY:?Set MCW_API_KEY first}" \
   --data-urlencode 'collection=relaxation' \
   --data-urlencode 'limit=2'
