@@ -1,0 +1,17 @@
+name: Feature request
+description: Suggest an integration example or API improvement.
+title: "Feature: "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: use_case
+    attributes:
+      label: What are you trying to create?
+    validations:
+      required: true
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: What would make that easier?
+    validations:
+      required: true

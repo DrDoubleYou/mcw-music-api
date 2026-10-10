@@ -1,0 +1,939 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "MCW Music API",
+    "version": "1.0.0-beta",
+    "description": "Search original music by Matthew C. Wright and retrieve audio links with attribution. Get an API key at https://api.matthewcwright.com/developers/. Read-only access, 60 requests per minute and 1,000 per UTC day per account. Limits persist across key replacement. AI apps can alternatively connect to https://api.matthewcwright.com/mcp using OAuth. REST uses API keys. REST and MCP share account quotas."
+  },
+  "servers": [
+    {
+      "url": "https://api.matthewcwright.com/api/v1"
+    }
+  ],
+  "security": [
+    {
+      "ApiKey": []
+    }
+  ],
+  "paths": {
+    "/tracks": {
+      "get": {
+        "operationId": "searchTracks",
+        "summary": "Search music for a project",
+        "description": "Returns tracks ordered by stable track ID. Unknown or repeated query parameters are rejected. Empty results are a successful response. Minima must not exceed maxima.",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "description": "Case-insensitive text search. All whitespace-separated terms must appear in title, description, moods, or keywords.",
+            "schema": {
+              "type": "string",
+              "maxLength": 200
+            }
+          },
+          {
+            "name": "mood",
+            "in": "query",
+            "required": false,
+            "description": "Exact mood tag, case-insensitive. Read available tags from returned tracks.",
+            "schema": {
+              "type": "string",
+              "maxLength": 80
+            }
+          },
+          {
+            "name": "instrument",
+            "in": "query",
+            "required": false,
+            "description": "Instrument filter.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "piano",
+                "guitar"
+              ]
+            }
+          },
+          {
+            "name": "collection",
+            "in": "query",
+            "required": false,
+            "description": "Heuristic collection based on artist metadata.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "relaxation",
+                "sleep",
+                "stories"
+              ]
+            }
+          },
+          {
+            "name": "min_duration",
+            "in": "query",
+            "required": false,
+            "description": "Minimum duration in seconds.",
+            "schema": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 86400
+            }
+          },
+          {
+            "name": "max_duration",
+            "in": "query",
+            "required": false,
+            "description": "Maximum duration in seconds.",
+            "schema": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 86400
+            }
+          },
+          {
+            "name": "min_bpm",
+            "in": "query",
+            "required": false,
+            "description": "Minimum BPM; tracks without BPM are excluded when filtering tempo.",
+            "schema": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1000
+            }
+          },
+          {
+            "name": "max_bpm",
+            "in": "query",
+            "required": false,
+            "description": "Maximum BPM.",
+            "schema": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1000
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Page size.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "description": "Zero-based offset. Follow next_offset until null.",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 1000000,
+              "default": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "headers": {
+              "X-RateLimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                },
+                "description": "Requests allowed per UTC-aligned minute."
+              },
+              "X-RateLimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                },
+                "description": "Requests remaining this minute."
+              },
+              "X-RateLimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                },
+                "description": "Minute reset as Unix seconds."
+              },
+              "X-DailyLimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                },
+                "description": "Requests allowed per UTC day."
+              },
+              "X-DailyLimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                },
+                "description": "Requests remaining today."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "data",
+                    "pagination"
+                  ],
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Track"
+                      }
+                    },
+                    "pagination": {
+                      "$ref": "#/components/schemas/Pagination"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid query parameter. Fix the request; do not retry unchanged.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, invalid, or revoked API key. Ask the account owner to configure a key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit reached. Wait for Retry-After seconds before retrying.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "integer"
+                },
+                "description": "Seconds to wait before retrying."
+              }
+            }
+          },
+          "503": {
+            "description": "Temporary service problem. Retry with bounded exponential backoff.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "integer"
+                },
+                "description": "Seconds to wait before retrying."
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tracks/{id}": {
+      "get": {
+        "operationId": "getTrack",
+        "summary": "Get audio links, license, and attribution for one track",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "headers": {
+              "X-RateLimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                },
+                "description": "Requests allowed per UTC-aligned minute."
+              },
+              "X-RateLimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                },
+                "description": "Requests remaining this minute."
+              },
+              "X-RateLimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                },
+                "description": "Minute reset as Unix seconds."
+              },
+              "X-DailyLimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                },
+                "description": "Requests allowed per UTC day."
+              },
+              "X-DailyLimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                },
+                "description": "Requests remaining today."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "data"
+                  ],
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Track"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid query parameter. Fix the request; do not retry unchanged.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, invalid, or revoked API key. Ask the account owner to configure a key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit reached. Wait for Retry-After seconds before retrying.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "integer"
+                },
+                "description": "Seconds to wait before retrying."
+              }
+            }
+          },
+          "503": {
+            "description": "Temporary service problem. Retry with bounded exponential backoff.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "integer"
+                },
+                "description": "Seconds to wait before retrying."
+              }
+            }
+          },
+          "404": {
+            "description": "Track not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/collections": {
+      "get": {
+        "operationId": "listCollections",
+        "summary": "List available music collections",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "headers": {
+              "X-RateLimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                },
+                "description": "Requests allowed per UTC-aligned minute."
+              },
+              "X-RateLimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                },
+                "description": "Requests remaining this minute."
+              },
+              "X-RateLimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                },
+                "description": "Minute reset as Unix seconds."
+              },
+              "X-DailyLimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                },
+                "description": "Requests allowed per UTC day."
+              },
+              "X-DailyLimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                },
+                "description": "Requests remaining today."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "data"
+                  ],
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Collection"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid query parameter. Fix the request; do not retry unchanged.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, invalid, or revoked API key. Ask the account owner to configure a key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit reached. Wait for Retry-After seconds before retrying.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "integer"
+                },
+                "description": "Seconds to wait before retrying."
+              }
+            }
+          },
+          "503": {
+            "description": "Temporary service problem. Retry with bounded exponential backoff.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "integer"
+                },
+                "description": "Seconds to wait before retrying."
+              }
+            }
+          }
+        }
+      }
+    },
+    "/capabilities": {
+      "get": {
+        "operationId": "getCapabilities",
+        "summary": "Discover supported filters, instruments, moods, tools and pagination.",
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Capability metadata.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "version",
+                    "track_count",
+                    "instruments",
+                    "moods",
+                    "filters",
+                    "pagination",
+                    "tools",
+                    "downloads",
+                    "tempo"
+                  ],
+                  "properties": {
+                    "version": {
+                      "type": "string"
+                    },
+                    "track_count": {
+                      "type": "integer"
+                    },
+                    "instruments": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "moods": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "filters": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "tools": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "pagination": {
+                      "type": "object",
+                      "properties": {
+                        "default_limit": {
+                          "type": "integer"
+                        },
+                        "max_limit": {
+                          "type": "integer"
+                        }
+                      }
+                    },
+                    "downloads": {
+                      "type": "string"
+                    },
+                    "tempo": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, invalid, or revoked API key. Ask the account owner to configure a key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit reached. Wait for Retry-After seconds before retrying.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "integer"
+                },
+                "description": "Seconds to wait before retrying."
+              }
+            }
+          }
+        }
+      }
+    },
+    "/usage": {
+      "get": {
+        "operationId": "getUsage",
+        "summary": "Read account limits, requests used today, and reset time. This request counts toward usage.",
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Account usage without credentials or email.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "limits",
+                    "requests_today",
+                    "resets_at"
+                  ],
+                  "properties": {
+                    "limits": {
+                      "type": "object",
+                      "properties": {
+                        "per_minute": {
+                          "type": "integer"
+                        },
+                        "per_day": {
+                          "type": "integer"
+                        }
+                      }
+                    },
+                    "requests_today": {
+                      "type": "integer"
+                    },
+                    "resets_at": {
+                      "type": "integer",
+                      "description": "Next midnight UTC as Unix seconds."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, invalid, or revoked API key. Ask the account owner to configure a key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit reached. Wait for Retry-After seconds before retrying.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "integer"
+                },
+                "description": "Seconds to wait before retrying."
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "ApiKey": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "mcw_live_\u2026",
+        "description": "Store your key as a secret. Send only in the Authorization header to this API, never in a URL or to the audio host."
+      }
+    },
+    "schemas": {
+      "Track": {
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "artist",
+          "description",
+          "instrument",
+          "duration_seconds",
+          "moods",
+          "keywords",
+          "audio_features",
+          "preview_url",
+          "download_url",
+          "audio_format",
+          "source_url",
+          "license",
+          "attribution",
+          "attribution_instructions"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "artist": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "instrument": {
+            "type": "string",
+            "enum": [
+              "piano",
+              "guitar"
+            ]
+          },
+          "duration_seconds": {
+            "type": "integer"
+          },
+          "moods": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "keywords": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "audio_features": {
+            "type": "object",
+            "required": [
+              "tempo_bpm",
+              "tempo_source",
+              "valence",
+              "energy",
+              "danceability",
+              "analysis_status"
+            ],
+            "properties": {
+              "tempo_bpm": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "tempo_source": {
+                "type": "string"
+              },
+              "valence": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "energy": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "danceability": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "analysis_status": {
+                "type": "string",
+                "enum": [
+                  "not analyzed"
+                ]
+              }
+            }
+          },
+          "preview_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "download_url": {
+            "type": "string",
+            "format": "uri",
+            "description": "Public MP3. Fetch without your API key; never forward Authorization to the media host."
+          },
+          "audio_format": {
+            "type": "string",
+            "enum": [
+              "mp3"
+            ]
+          },
+          "source_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "license": {
+            "type": "object",
+            "required": [
+              "id",
+              "url",
+              "attribution_required"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "const": "CC-BY-4.0"
+              },
+              "url": {
+                "type": "string",
+                "format": "uri"
+              },
+              "attribution_required": {
+                "type": "boolean",
+                "const": true
+              }
+            }
+          },
+          "attribution": {
+            "type": "string"
+          },
+          "attribution_instructions": {
+            "type": "string"
+          }
+        }
+      },
+      "Pagination": {
+        "type": "object",
+        "required": [
+          "total",
+          "limit",
+          "offset",
+          "next_offset"
+        ],
+        "properties": {
+          "total": {
+            "type": "integer"
+          },
+          "limit": {
+            "type": "integer"
+          },
+          "offset": {
+            "type": "integer"
+          },
+          "next_offset": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "type": "object",
+            "required": [
+              "code",
+              "message"
+            ],
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "retry_after_seconds": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      },
+      "Collection": {
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "description",
+          "track_count"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "enum": [
+              "relaxation",
+              "sleep",
+              "stories"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "track_count": {
+            "type": "integer"
+          }
+        }
+      }
+    }
+  }
+}

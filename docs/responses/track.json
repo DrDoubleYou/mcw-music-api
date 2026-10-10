@@ -1,0 +1,41 @@
+{
+  "data": {
+    "id": "000073-nebula",
+    "title": "Nebula",
+    "artist": "Matthew C. Wright",
+    "description": "A slow, calming piano track for relaxation.",
+    "instrument": "piano",
+    "duration_seconds": 240,
+    "moods": [
+      "calming",
+      "soothing",
+      "relaxing"
+    ],
+    "keywords": [
+      "sleepy",
+      "calming",
+      "relaxing",
+      "peaceful",
+      "soothing"
+    ],
+    "audio_features": {
+      "tempo_bpm": 53,
+      "tempo_source": "artist catalog",
+      "valence": null,
+      "energy": null,
+      "danceability": null,
+      "analysis_status": "not analyzed"
+    },
+    "preview_url": "https://media.matthewcwright.com/audio/previews/nebula_preview.mp3",
+    "download_url": "https://media.matthewcwright.com/audio/downloads/nebula_download.mp3",
+    "audio_format": "mp3",
+    "source_url": "https://matthewcwright.com/music/royalty-free/000073-nebula/",
+    "license": {
+      "id": "CC-BY-4.0",
+      "url": "https://creativecommons.org/licenses/by/4.0/",
+      "attribution_required": true
+    },
+    "attribution": "Music: \"Nebula\" by Matthew C. Wright\nLicensed under Creative Commons Attribution 4.0\nhttps://creativecommons.org/licenses/by/4.0/\nSource: https://matthewcwright.com/music/royalty-free/000073-nebula/",
+    "attribution_instructions": "Include the attribution with your project. If you edit, fade, trim, or loop the audio, add a Changes line describing those edits."
+  }
+}

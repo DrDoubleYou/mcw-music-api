@@ -1,0 +1,22 @@
+{
+  "data": [
+    {
+      "id": "relaxation",
+      "title": "Relaxation & focus",
+      "description": "Unhurried music with calm, gentle, or peaceful descriptions.",
+      "track_count": 103
+    },
+    {
+      "id": "sleep",
+      "title": "Sleep & stillness",
+      "description": "Unhurried music described as sleepy, soothing, or lullaby-like.",
+      "track_count": 101
+    },
+    {
+      "id": "stories",
+      "title": "Stories & films",
+      "description": "Music with cinematic, emotional, dramatic, or hopeful descriptions.",
+      "track_count": 9
+    }
+  ]
+}

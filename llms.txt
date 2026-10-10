@@ -1,0 +1,12 @@
+# Matthew C. Wright Music API
+
+> Original music for automated creative workflows, with downloadable audio and attribution.
+
+- [Agent guide](https://api.matthewcwright.com/developers/agent-guide.md): Authentication, search, downloads, credits, limits, and retries.
+- [OpenAPI definition](https://api.matthewcwright.com/developers/openapi.json): Machine-readable v1 API contract.
+- [Developer account](https://api.matthewcwright.com/developers/): Email-link sign-in and API-key management.
+- [Music catalog](https://matthewcwright.com/music/royalty-free/): Browse the public music collection.
+
+Connect an AI app to https://api.matthewcwright.com/mcp using Streamable HTTP and OAuth.
+Scripts use an API key stored in their secret settings. Never paste credentials
+into chat or forward them to audio downloads. Both share account usage limits.

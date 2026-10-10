@@ -1,0 +1,14 @@
+# Local credentials and generated creator files
+.env
+.env.*
+!.env.example
+music/
+ready/
+podcast-music/
+__pycache__/
+*.pyc
+node_modules/
+.DS_Store
+*.mp3
+*.mp4
+*.wav

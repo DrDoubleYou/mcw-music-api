@@ -1,0 +1,8 @@
+{
+  "limits": {
+    "per_minute": 60,
+    "per_day": 1000
+  },
+  "requests_today": 12,
+  "resets_at": 1791590400
+}
