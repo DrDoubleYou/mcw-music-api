@@ -40,6 +40,10 @@ class ExampleSmokeTests(unittest.TestCase):
 
             def do_GET(self):
                 cls.media_requests.append((self.path, self.headers.get("Authorization")))
+                if self.headers.get("User-Agent") != "mcw-music-api-example/1.0":
+                    self.send_response(403)
+                    self.end_headers()
+                    return
                 if self.path.startswith("/redirect/"):
                     self.send_response(302)
                     self.send_header("Location", "/audio/" + self.path.split("/")[-1])
@@ -63,6 +67,10 @@ class ExampleSmokeTests(unittest.TestCase):
 
             def do_GET(self):
                 cls.api_requests.append((self.path, self.headers.get("Authorization")))
+                if self.headers.get("User-Agent") != "mcw-music-api-example/1.0":
+                    self.send_response(403)
+                    self.end_headers()
+                    return
                 if cls.mode == "redirect":
                     self.send_response(302)
                     self.send_header("Location", cls.media_origin + "/credential-leak")
@@ -191,13 +199,14 @@ class ExampleSmokeTests(unittest.TestCase):
                 self.assertTrue((working / "music" / (self.tracks[0]["id"] + ".mp3")).exists())
 
     def test_video_mixing_with_and_without_original_audio(self):
-        for has_audio in (False, True):
-            with self.subTest(original_audio=has_audio):
-                original = self.folder / f"original-{has_audio}.mp4"
+        for audio_duration in (None, 1, 0.4):
+            with self.subTest(original_audio_duration=audio_duration):
+                has_audio = audio_duration is not None
+                original = self.folder / f"original-{audio_duration}.mp4"
                 command = ["ffmpeg", "-hide_banner", "-loglevel", "error", "-f", "lavfi", "-i",
                            "color=c=blue:s=64x64:d=1:r=24"]
                 if has_audio:
-                    command += ["-f", "lavfi", "-i", "sine=frequency=220:duration=1", "-c:a", "aac"]
+                    command += ["-f", "lavfi", "-i", f"sine=frequency=220:duration={audio_duration}", "-c:a", "aac"]
                 command += ["-c:v", "libx264", "-pix_fmt", "yuv420p", str(original)]
                 subprocess.run(command, check=True)
                 original_bytes = original.read_bytes()

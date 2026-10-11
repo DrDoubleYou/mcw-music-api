@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Search, select, and download MCW music. Requires cURL and jq.
 set -euo pipefail
+user_agent="mcw-music-api-example/1.0"
 : "${MCW_API_KEY:?Set MCW_API_KEY first: https://api.matthewcwright.com/developers/}"
 command -v jq >/dev/null || { echo 'Install jq first: https://jqlang.org/download/' >&2; exit 1; }
 api_base="${MCW_API_BASE_URL:-https://api.matthewcwright.com/api/v1}"
@@ -14,7 +15,7 @@ headers_file="$(mktemp)"
 trap 'rm -f "$response_file" "$headers_file"' EXIT
 # No --location: an authenticated API request must never follow a redirect.
 status="$(curl --silent --show-error --max-time 30 --get "$api_base/tracks" \
-  -H "Authorization: Bearer $MCW_API_KEY" \
+  -H "Authorization: Bearer $MCW_API_KEY" --user-agent "$user_agent" \
   --data-urlencode 'collection=relaxation' --data-urlencode 'limit=5' \
   --dump-header "$headers_file" --output "$response_file" --write-out '%{http_code}')"
 if [[ "$status" != 200 ]]; then
@@ -55,7 +56,7 @@ if [[ -e "$prefix.mp3" || -e "$prefix-credit.txt" || -e "$prefix.json" ]]; then
   exit 1
 fi
 # A separate public download request: no API key is sent to the media host.
-curl --fail --silent --show-error --location --max-time 60 "$music_url" -o "$prefix.mp3"
+curl --fail --silent --show-error --location --user-agent "$user_agent" --max-time 60 "$music_url" -o "$prefix.mp3"
 jq -r '.attribution' <<< "$track" > "$prefix-credit.txt"
 printf '%s\n' "$track" > "$prefix.json"
 printf 'Downloaded: %s.mp3\nMusic credit: %s-credit.txt\nTrack metadata: %s.json\n' "$prefix" "$prefix" "$prefix"

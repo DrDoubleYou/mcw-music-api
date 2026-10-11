@@ -10,6 +10,7 @@ from urllib.parse import urlencode, urlsplit, quote
 from urllib.request import HTTPRedirectHandler, Request, build_opener, urlopen
 
 API_BASE = "https://api.matthewcwright.com/api/v1"
+USER_AGENT = "mcw-music-api-example/1.0"
 
 
 class NoApiRedirects(HTTPRedirectHandler):
@@ -36,7 +37,7 @@ def api_get(path, params=None):
     if urlsplit(base).query or urlsplit(base).fragment:
         raise ValueError("The API base URL must not contain a query or fragment.")
     suffix = "?" + urlencode(params) if params else ""
-    req = Request(base + path + suffix, headers={"Authorization": "Bearer " + key})
+    req = Request(base + path + suffix, headers={"Authorization": "Bearer " + key, "User-Agent": USER_AGENT})
     try:
         with build_opener(NoApiRedirects()).open(req, timeout=30) as response:
             return json.load(response)
@@ -58,7 +59,7 @@ def save_track(track, folder):
     if any(path.exists() for path in (audio, credit, metadata)):
         raise ValueError("Output already exists. Choose another output directory or track.")
     # Separate, unauthenticated request: no Authorization header goes to media.
-    with urlopen(safe_url(track["download_url"]), timeout=60) as response:
+    with urlopen(Request(safe_url(track["download_url"]), headers={"User-Agent": USER_AGENT}), timeout=60) as response:
         with audio.open("xb") as output:
             shutil.copyfileobj(response, output)
     credit.write_text(track["attribution"] + "\n", encoding="utf-8")

@@ -54,9 +54,11 @@ def main():
             f"afade=t=in:st=0:d={fade},afade=t=out:st={duration-fade}:d={fade}[music]"
         )
         if has_audio:
+            # The trimmed music keeps short original audio from shortening the video.
+            # Avoid apad here: this graph can stall on FFmpeg 8 when no padding is needed.
             filters = (
-                music_filter + f";[0:a]apad=whole_dur={duration},atrim=duration={duration},asetpts=PTS-STARTPTS[original];"
-                "[original][music]amix=inputs=2:duration=shortest:normalize=0[mix]"
+                music_filter + f";[0:a]atrim=duration={duration},asetpts=PTS-STARTPTS[original];"
+                "[original][music]amix=inputs=2:duration=longest:normalize=0[mix]"
             )
             mapped_audio = "[mix]"
         else:

@@ -14,6 +14,7 @@ Search music for a project.
 
 ```sh
 curl --fail-with-body 'https://api.matthewcwright.com/api/v1/tracks?collection=relaxation&limit=2' \
+  --user-agent 'mcw-music-api-example/1.0' \
   -H "Authorization: Bearer ${MCW_API_KEY:?Set MCW_API_KEY first}"
 ```
 
@@ -117,6 +118,7 @@ Get audio links, license, and attribution for one track.
 
 ```sh
 curl --fail-with-body 'https://api.matthewcwright.com/api/v1/tracks/000073-nebula' \
+  --user-agent 'mcw-music-api-example/1.0' \
   -H "Authorization: Bearer ${MCW_API_KEY:?Set MCW_API_KEY first}"
 ```
 
@@ -176,6 +178,7 @@ List available music collections.
 
 ```sh
 curl --fail-with-body 'https://api.matthewcwright.com/api/v1/collections' \
+  --user-agent 'mcw-music-api-example/1.0' \
   -H "Authorization: Bearer ${MCW_API_KEY:?Set MCW_API_KEY first}"
 ```
 
@@ -216,6 +219,7 @@ Discover supported filters, instruments, moods, tools and pagination..
 
 ```sh
 curl --fail-with-body 'https://api.matthewcwright.com/api/v1/capabilities' \
+  --user-agent 'mcw-music-api-example/1.0' \
   -H "Authorization: Bearer ${MCW_API_KEY:?Set MCW_API_KEY first}"
 ```
 
@@ -465,6 +469,7 @@ Usage numbers are illustrative. requests_today includes this request; resets_at 
 
 ```sh
 curl --fail-with-body 'https://api.matthewcwright.com/api/v1/usage' \
+  --user-agent 'mcw-music-api-example/1.0' \
   -H "Authorization: Bearer ${MCW_API_KEY:?Set MCW_API_KEY first}"
 ```
 

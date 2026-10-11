@@ -56,6 +56,7 @@ Example, after the key is stored in the environment:
 
 ```sh
 curl --fail-with-body --get 'https://api.matthewcwright.com/api/v1/tracks' \
+  --user-agent 'mcw-music-api-example/1.0' \
   --header "Authorization: Bearer $MCW_API_KEY" \
   --data-urlencode 'collection=relaxation' \
   --data-urlencode 'min_duration=60' \
