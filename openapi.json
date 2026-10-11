@@ -613,6 +613,24 @@
                 "description": "Seconds to wait before retrying."
               }
             }
+          },
+          "503": {
+            "description": "Temporary service problem. Retry with bounded exponential backoff.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "integer"
+                },
+                "description": "Seconds to wait before retrying."
+              }
+            }
           }
         }
       }
@@ -674,6 +692,24 @@
           },
           "429": {
             "description": "Rate limit reached. Wait for Retry-After seconds before retrying.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "integer"
+                },
+                "description": "Seconds to wait before retrying."
+              }
+            }
+          },
+          "503": {
+            "description": "Temporary service problem. Retry with bounded exponential backoff.",
             "content": {
               "application/json": {
                 "schema": {

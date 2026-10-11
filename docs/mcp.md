@@ -34,7 +34,7 @@ The MCP provides music links and credits. Audio editing, access to local files, 
 
 ## Connection lifetime and control
 
-Access tokens last 15 minutes. With `offline_access`, an authorized connection can refresh access for up to 30 days. An app can request `music:read` and optional `offline_access`; use the service's OAuth discovery rather than hardcoding token endpoints.
+Access tokens and connections without `offline_access` last 15 minutes. With `offline_access`, an authorized connection can refresh access for up to 30 days. An app can request `music:read` and optional `offline_access`; use the service's OAuth discovery rather than hardcoding token endpoints.
 
 Manage or disconnect connected AI apps on [Account / API key](https://api.matthewcwright.com/developers/). A 401 means the app needs to reconnect. Tool errors set `isError=true`; rate-limit errors include `retry_after_seconds`.
 

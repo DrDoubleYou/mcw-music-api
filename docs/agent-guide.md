@@ -21,7 +21,7 @@ GET /capabilities and GET /usage provide discovery and account usage over REST.
 
 OAuth uses S256 PKCE and the resource https://api.matthewcwright.com/mcp. Request
 music:read, plus offline_access for refresh access. Access tokens last 15 minutes;
-connections expire after 30 days. The service supports client metadata documents
+connections last up to 30 days with offline_access, or 15 minutes without it. The service supports client metadata documents
 and dynamic client registration. Use discovery metadata rather than hardcoding
 token endpoints. Disconnect an app from the developer account page to immediately
 block its access. Token credentials are audience-bound to MCP; REST uses API keys.
